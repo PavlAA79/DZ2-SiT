@@ -1,20 +1,21 @@
 from math import factorial
 from prettytable import PrettyTable
+from sympy.utilities.iterables import multiset_permutations
 
 #Функция, реализующая наложение вектора ошибки
 def ErrorOverlay(v1, e):
     res = [0]*15
-    for i in range(0,14):
+    for i in range(0,15):
         res[i]=e[i]^v1[i]
     return res
 
 #Функция, реализующая вычисление синдрома ошибки
 def ErrorSyndrom(v2):
-    h = [0,0,0,0]
-    h[3] = v2[14]^v2[12]^v2[10]^v2[8]^v2[6]^v2[4]^v2[2]^v2[0] 
-    h[2] = v2[13]^v2[12]^v2[9]^v2[8]^v2[5]^v2[4]^v2[1]^v2[0]
+    h = [0]*4
+    h[0] = v2[7]^v2[6]^v2[5]^v2[4]^v2[3]^v2[2]^v2[1]^v2[0] 
     h[1] = v2[11]^v2[10]^v2[9]^v2[8]^v2[3]^v2[2]^v2[1]^v2[0]
-    h[0] = v2[7]^v2[6]^v2[5]^v2[4]^v2[3]^v2[2]^v2[1]^v2[0]
+    h[2] = v2[13]^v2[12]^v2[9]^v2[8]^v2[5]^v2[4]^v2[1]^v2[0]
+    h[3] = v2[14]^v2[12]^v2[10]^v2[8]^v2[6]^v2[4]^v2[2]^v2[0]
     return h
 
 #Функция, реализующая кодирование исходной кодовой последовательности
@@ -52,31 +53,28 @@ def ErrorFix(v2,h):
     v2[14-er_index] = v2[14-er_index]^1
     return v2
 
+
 def CreateTable(v1):
     e1 = [0]*15
-    h = [1,1,1,1]
+    h = [0]*4
     C0 = [0]*15
     n0 = [0]*15
     Combinations = [0]*15
-    v2 = [0]*15
-    for i in range (0,15):
-        n0[i] = 0
+    all_errors = []
+    for i in range (0,14):
         e1[i] = 1
-        #Наложение вектора ошибки
-        v2 = ErrorOverlay(v1, e1)
-        while (True):
+        all_errors = list(multiset_permutations(e1))
+        for j in range (len(all_errors)):
+            #Наложение вектора ошибки
+            v2 = ErrorOverlay(v1, all_errors[j])
             #Вычисление синдрома ошибки
             h = ErrorSyndrom(v2)
             if (h != [0,0,0,0]):
                 n0[i] = n0[i] + 1
-                v2 = ErrorFix(v2,h)
-                continue
-            else:
-                #Определение обнаруживающей способности
-                Combinations[i]=int(factorial(15)/(factorial(i+1)*factorial(15-(i+1))))
-                C0[i] = n0[i]/Combinations[i]
-                C0[i] =float('{:.7f}'.format(C0[i]))
-                break
+        #Определение обнаруживающей способности     
+        Combinations[i]=int(factorial(15)/(factorial(i+1)*factorial(15-(i+1))))
+        C0[i] = n0[i]/Combinations[i]
+        C0[i] =float('{:.7f}'.format(C0[i]))
 
     i1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     table = PrettyTable()
@@ -99,7 +97,7 @@ def main():
     v1 = Coding(v)
     print("v1 =",v1)
     #Наложение вектора ошибки кратности 1
-    e = [0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
+    e = [0,0,0,0,0,0,0,0,0,0,1,0,0,0,0]
     print("Результат воздействия однократной ошибки:")
     v2 = ErrorOverlay(v1,e)
     print("v2 =",v2)
@@ -120,6 +118,6 @@ def main():
     #Создание итоговой таблицы вычисления обнаруживающей способности кода для ошибок всех кратностей
     table = CreateTable(v1)
     print(table)
-
+    
 if __name__ == "__main__":
     main()
