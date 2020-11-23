@@ -75,7 +75,7 @@ def CreateTable(v1):
         Combinations[i]=int(factorial(15)/(factorial(i+1)*factorial(15-(i+1))))
         C0[i] = n0[i]/Combinations[i]
         C0[i] =float('{:.7f}'.format(C0[i]))
-
+    Combinations[14]=int(factorial(15)/(factorial(15)*factorial(0)))
     i1 = [1,2,3,4,5,6,7,8,9,10,11,12,13,14,15]
     table = PrettyTable()
 
